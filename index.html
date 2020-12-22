@@ -3,11 +3,18 @@
         <script src="./lib/p5.min.js"></script>
         <script src="./catalog.js"></script>
 
+        <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+
         <style>
             .color {
                 float: left;
                 width: 30px;
                 height: 30px;
+            }
+
+            tfoot {
+                background-color: #35c0bb
             }
         </style>
 
@@ -22,12 +29,13 @@
             const catalogObj = catalogRows.reduce((final, row) => {
                 const cols = row.split(',');
                 final[cols[0]] = {
-                    price: parseFloat(cols[6].replace('"', '').replace('€', '').trim())
+                    price: parseFloat(cols[6].replace('"', '').replace('€', '').trim()),
+                    element: cols[4],
+                    series: cols[5]
                 }
                 return final;
             }, {})
 
-            console.log(catalogObj);
 
             function setup() {
 
@@ -57,33 +65,94 @@
                             let totalPrice = 0;
 
                             createDiv()
+                            const table = createElement('table');
+                            table.class('table table-striped');
+
+                            const thead = createElement('thead',
+                                `
+                                    <tr>
+                                        <th></th>
+                                        <th>RGB</th>
+                                        <th>HEX</th>
+                                        <th>numero</th>
+                                        <th>prezzo</th>
+                                        <th>elemento</th>
+                                        <th>num. serie</th>    
+                                    </tr>
+                                `
+                            );
+                            thead.parent(table);
+
+                            
+
+
+                            tbody = createElement('tbody');
+                            tbody.parent(table);
 
                             Object.keys(colors).forEach(c => {
 
-                                const container = createDiv()
+                                const tr = createElement('tr');
+                                tr.parent(tbody)
 
-                                const block = createDiv();
-                                block.parent(container);
-                                block.class('color');
-                                block.style('background-color', `rgba(${c})`);
+                                const colorTd = createElement('td');
+                                colorTd.parent(tr);
+
+                                const colorBlock = createDiv();
+                                colorBlock.parent(colorTd);
+                                colorBlock.class('color');
+                                colorBlock.style('background-color', `rgba(${c})`);
+
+                                const rgbBlock = createElement('td');
+                                rgbBlock.parent(tr);
+                                rgbBlock.html(c)
                                 
                                 const comp = c.split(',').map(num => parseInt(num));
                                 var hx = "#" + hex(comp[0], 2) + hex(comp[1], 2) + hex(comp[2], 2);
-
-                                const price =  (catalogObj[hx] ?  catalogObj[hx].price : 0) * colors[c];
-                                const p = createP(`${c} - ${hx} : ${colors[c]} (€ ${price})`)
-                                if (price === 0) {
-                                    const s = createSpan('⚠️⚠️⚠️')
-                                    s.parent(p)
-                                }
+                                const hexTd = createElement('td', hx);
+                                hexTd.parent(tr);
                                 
-                                p.parent(container)
+                                const countTd = createElement('td');
+                                countTd.parent(tr)
+                                countTd.html(colors[c])
+                                
+                                let price = 0;
+                                const priceTd = createElement('td');
+                                if (catalogObj[hx]) {
+                                    price = catalogObj[hx].price * colors[c];
+                                    priceTd.html(`${price} €`)
+                                }
+                                priceTd.parent(tr);
+
+                                const elementTd = createElement('td');
+                                if (catalogObj[hx]) {
+                                    elementTd.html(catalogObj[hx].element);
+                                }
+                                elementTd.parent(tr);
+
+                                const seriesTd = createElement('td');
+                                if (catalogObj[hx]) {
+                                    seriesTd.html(catalogObj[hx].series);
+                                }
+                                seriesTd.parent(tr);
+                                
                                 totalPoints += colors[c];
                                 totalPrice += price;
                             })
 
-                            createP(`TOTAL : ${totalPoints} (€ ${totalPrice})`)
-                            createP(`math : ${gridX} x ${gridY} = ${gridX * gridY}`)
+                            tfooter = createElement('tfoot', `
+                                <tr>
+                                    <td>TOTALI</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>${totalPoints}</td>
+                                    <td>${totalPrice} €</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            `);
+                            tfooter.parent(table);
+
+                           
 
                         });
 
