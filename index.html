@@ -2,6 +2,14 @@
     <head>
         <script src="./lib/p5.min.js"></script>
 
+        <style>
+            .color {
+                float: left;
+                width: 30px;
+                height: 30px;
+            }
+        </style>
+
         <script>
 
             let gridX = 48;
@@ -33,8 +41,18 @@
 
                             let totalPoints = 0;
 
+                            createDiv()
+
                             Object.keys(colors).forEach(color => {
-                                createP(`${color} : ${colors[color]}`)
+
+                                const container = createDiv()
+
+                                const block = createDiv();
+                                block.parent(container);
+                                block.class('color');
+                                block.style('background-color', `rgba(${color})`);
+                                const p = createP(`${color} : ${colors[color]}`)
+                                p.parent(container)
                                 totalPoints += colors[color];
                             })
 
