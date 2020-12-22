@@ -1,0 +1,58 @@
+<html>
+    <head>
+        <script src="./lib/p5.min.js"></script>
+
+        <script>
+
+            let gridX = 48;
+            let gridY = 48;
+
+            function setup() {
+
+                const gridXInput = createInput('48');
+                gridXInput.input(function() {gridX = parseInt(this.value())});
+                const gridYInput = createInput('48');
+                gridYInput.input(function() {gridY = parseInt(this.value())});
+                const imageFile = createFileInput(file => {
+
+                    if (file.type === 'image') {
+                        loadImage(file.data, (img) => {
+                            const blockSizeWidth = img.width / gridX;
+                            const blockSizeHeight = img.height / gridY;
+
+                            const colors = {}
+
+                            for ( let i = Math.round(blockSizeWidth / 2); i < img.width; i = i + blockSizeWidth ) {
+                                for ( let j = Math.round(blockSizeHeight / 2); j < img.height; j = j + blockSizeHeight) {
+
+                                    let c = img.get(i, j);
+                                    colors[c] = colors[c] === undefined ? 1 : colors[c] + 1
+
+                                }
+                            }
+
+                            let totalPoints = 0;
+
+                            Object.keys(colors).forEach(color => {
+                                createP(`${color} : ${colors[color]}`)
+                                totalPoints += colors[color];
+                            })
+
+                            createP(`TOTAL : ${totalPoints}`)
+                            createP(`math : ${gridX} x ${gridY} = ${gridX * gridY}`)
+
+                        });
+
+                        
+                    }
+
+                });
+
+
+            }
+            
+
+        </script>
+    </head>
+    
+</html>
