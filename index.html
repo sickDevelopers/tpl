@@ -43,17 +43,21 @@
 
                             createDiv()
 
-                            Object.keys(colors).forEach(color => {
+                            Object.keys(colors).forEach(c => {
 
                                 const container = createDiv()
 
                                 const block = createDiv();
                                 block.parent(container);
                                 block.class('color');
-                                block.style('background-color', `rgba(${color})`);
-                                const p = createP(`${color} : ${colors[color]}`)
+                                block.style('background-color', `rgba(${c})`);
+                                
+                                const comp = c.split(',').map(num => parseInt(num));
+                                var hx = "#" + hex(comp[0], 2) + hex(comp[1], 2) + hex(comp[2], 2);
+
+                                const p = createP(`${c} : ${colors[c]} - ${hx}`)
                                 p.parent(container)
-                                totalPoints += colors[color];
+                                totalPoints += colors[c];
                             })
 
                             createP(`TOTAL : ${totalPoints}`)
