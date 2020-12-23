@@ -28,13 +28,15 @@
 
             const catalogObj = catalogRows.reduce((final, row) => {
                 const cols = row.split(',');
-                final[cols[0]] = {
+                final[cols[0].toUpperCase()] = {
                     price: parseFloat(cols[6].replace('"', '').replace('€', '').trim()),
                     element: cols[4],
                     series: cols[5]
                 }
                 return final;
             }, {})
+
+            console.log(cataglogObj)
 
 
             function setup() {
