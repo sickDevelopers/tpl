@@ -25,7 +25,18 @@
 
         <script>
 
-            
+            // CODICE IMPORTANTISSIMO LUCAAAAAAAAAAAA
+            (async () => {
+                const API_KEY = "H1FB5bcRZ0jP91bF8GpYvFXLNjJ3R3Ez";
+
+                const { data } = await giphyRandom(API_KEY);
+
+                console.log(data);
+
+                const embed = createElement('embed');
+                embed.attribute('src', data.embed_url)
+            })();
+            // FINE CODICE IMPORTATISSIMO
 
             let gridX = 48;
             let gridY = 48;
@@ -189,18 +200,7 @@
                                 
 
 
-                                // CODICE IMPORTANTISSIMO
-                                (async () => {
-                                    const API_KEY = "H1FB5bcRZ0jP91bF8GpYvFXLNjJ3R3Ez";
-
-                                    const { data } = await giphyRandom(API_KEY);
-
-                                    console.log(data);
-
-                                    const embed = createElement('embed');
-                                    embed.attribute('src', data.embed_url)
-                                })();
-                                // FINE CODICE IMPORTATISSIMO
+                                
                             })
                             
                             
