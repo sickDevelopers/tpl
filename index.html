@@ -3,9 +3,14 @@
         <script src="./lib/p5.min.js"></script>
         <script src="./catalog.js"></script>
 
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+<script src="https://unpkg.com/giphy-random/dist/giphy-random.umd.min.js"></script>
+
         <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
-
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@1,700&display=swap" rel="stylesheet">
         <style>
             .color {
                 float: left;
@@ -19,6 +24,8 @@
         </style>
 
         <script>
+
+            
 
             let gridX = 48;
             let gridY = 48;
@@ -36,13 +43,12 @@
                 return final;
             }, {})
 
-            console.log(cataglogObj)
-
-
             function setup() {
 
+                createElement('label', 'colonne')
                 const gridXInput = createInput('48');
                 gridXInput.input(function() {gridX = parseInt(this.value())});
+                createElement('label', 'righe')
                 const gridYInput = createInput('48');
                 gridYInput.input(function() {gridY = parseInt(this.value())});
                 const imageFile = createFileInput(file => {
@@ -51,6 +57,8 @@
                         loadImage(file.data, (img) => {
                             const blockSizeWidth = img.width / gridX;
                             const blockSizeHeight = img.height / gridY;
+
+                            image(img,0,0, 100, 100)
 
                             const colors = {}
 
@@ -154,7 +162,48 @@
                             `);
                             tfooter.parent(table);
 
-                           
+                            button = createButton('ESPORTA STA ROBA E DIVENTA IMPROVVISAMENTE RICCO!');
+                            button.mouseReleased(function () {
+                                const csvContent = Object.keys(colors).reduce((finalString, c) => {
+                                    const comp = c.split(',').map(num => parseInt(num));
+                                    var hx = "#" + hex(comp[0], 2) + hex(comp[1], 2) + hex(comp[2], 2);
+                                    
+                                    if (catalogObj[hx]) {
+                                        finalString += `${catalogObj[hx].element}\t${colors[c]}`;
+                                    }
+                                    finalString += '\n';
+                                    return finalString
+
+                                }, '')
+
+                                console.log(csvContent)
+
+                                var encodedUri = encodeURI("data:text/csv;charset=utf-8," + csvContent);
+                                var link = document.createElement("a");
+                                link.setAttribute("href", encodedUri);
+                                link.setAttribute("download", "lego_order.txt");
+                                document.body.appendChild(link); // Required for FF
+
+                                link.click(); // This will download the data file named "my_data.csv".
+
+                                
+
+
+                                // CODICE IMPORTANTISSIMO
+                                (async () => {
+                                    const API_KEY = "H1FB5bcRZ0jP91bF8GpYvFXLNjJ3R3Ez";
+
+                                    const { data } = await giphyRandom(API_KEY);
+
+                                    console.log(data);
+
+                                    const embed = createElement('embed');
+                                    embed.attribute('src', data.embed_url)
+                                })();
+                                // FINE CODICE IMPORTATISSIMO
+                            })
+                            
+                            
 
                         });
 
@@ -169,5 +218,8 @@
 
         </script>
     </head>
-    
+    <body>
+        <h1 style="font-family: 'Comic Neue', cursive;">Cercavo il comic sans ma non è aggratis</h1>
+        
+    </body>
 </html>
