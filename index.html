@@ -21,7 +21,27 @@
             tfoot {
                 background-color: #35c0bb
             }
+
+            #img-container {
+                float: left;
+                background-color: gray;
+            }
+
+            #instructions {
+                float: right;
+                background-color: #000;
+                width: 1000px;
+                height: 1000px;
+            }
+
         </style>
+
+        
+    </head>
+    <body>
+        <h1 style="font-family: 'Comic Neue', cursive;">Cercavo il comic sans ma non è aggratis</h1>
+        <div id="img-container"></div>
+        <div class="" id="instructions"></div>
 
         <script>
 
@@ -29,7 +49,9 @@
             (async () => {
                 const API_KEY = "H1FB5bcRZ0jP91bF8GpYvFXLNjJ3R3Ez";
 
-                const { data } = await giphyRandom(API_KEY);
+                const { data } = await giphyRandom(API_KEY, {
+                    tag: 'fail'
+                });
 
                 console.log(data);
 
@@ -56,6 +78,10 @@
 
             function setup() {
 
+                const canvas = createCanvas(200, 200);
+                canvas.parent('img-container');
+
+
                 createElement('label', 'colonne')
                 const gridXInput = createInput('48');
                 gridXInput.input(function() {gridX = parseInt(this.value())});
@@ -69,18 +95,30 @@
                             const blockSizeWidth = img.width / gridX;
                             const blockSizeHeight = img.height / gridY;
 
-                            image(img,0,0, 100, 100)
+                            image(img,0,0, 200, 200)
 
                             const colors = {}
 
-                            for ( let i = Math.round(blockSizeWidth / 2); i < img.width; i = i + blockSizeWidth ) {
-                                for ( let j = Math.round(blockSizeHeight / 2); j < img.height; j = j + blockSizeHeight) {
+                            const colorGrid = Array(gridX).fill().map(() => Array(gridY).fill());
 
+                            let x = 0, y = 0;
+
+                            for ( let i = Math.round(blockSizeWidth / 2); i < img.width; i = i + blockSizeWidth ) {
+                                y = 0;
+                                for ( let j = Math.round(blockSizeHeight / 2); j < img.height; j = j + blockSizeHeight) {
+                                    
+                                    
                                     let c = img.get(i, j);
                                     colors[c] = colors[c] === undefined ? 1 : colors[c] + 1
-
+                                    colorGrid[x][y] = c;
+                                    y++;
                                 }
+                                x++;
                             }
+
+                            console.log(colors);  
+
+                            console.log('colorGrid', colorGrid)
 
                             let totalPoints = 0;
                             let totalPrice = 0;
@@ -93,6 +131,7 @@
                                 `
                                     <tr>
                                         <th></th>
+                                        <th>indice</th>  
                                         <th>RGB</th>
                                         <th>HEX</th>
                                         <th>numero</th>
@@ -104,28 +143,32 @@
                             );
                             thead.parent(table);
 
-                            
+                            const colorKeys = Object.keys(colors);
 
 
                             tbody = createElement('tbody');
                             tbody.parent(table);
 
-                            Object.keys(colors).forEach(c => {
+                            Object.keys(colors).forEach((c, index) => {
 
                                 const tr = createElement('tr');
                                 tr.parent(tbody)
 
                                 const colorTd = createElement('td');
                                 colorTd.parent(tr);
-
                                 const colorBlock = createDiv();
                                 colorBlock.parent(colorTd);
                                 colorBlock.class('color');
                                 colorBlock.style('background-color', `rgba(${c})`);
 
+                                const indexBlock = createElement('td', index +1 );
+                                indexBlock.parent(tr);
+
                                 const rgbBlock = createElement('td');
                                 rgbBlock.parent(tr);
                                 rgbBlock.html(c)
+
+                               
                                 
                                 const comp = c.split(',').map(num => parseInt(num));
                                 var hx = "#" + hex(comp[0], 2) + hex(comp[1], 2) + hex(comp[2], 2);
@@ -173,6 +216,58 @@
                             `);
                             tfooter.parent(table);
 
+
+
+                            const instructions = document.getElementById('instructions');
+                            const instructionCanvas = document.createElement('canvas');
+                            instructionCanvas.height = 1000;
+                            instructionCanvas.width = 1000;
+
+                            instructions.appendChild(instructionCanvas);
+                            const ctx = instructionCanvas.getContext('2d');
+
+                            const gridBlockWidth = 20;
+                            const gridBlockHeight = 20;
+
+                            
+
+
+                            for (let i = 0; i < colorGrid.length; i++) {
+                                for (let j = 0; j < colorGrid[0].length; j++) {
+                                    const [r, g, b, a] = colorGrid[i][j];
+                                    ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+                                    ctx.beginPath();
+                                    ctx.arc(
+                                        i * gridBlockWidth + gridBlockWidth, 
+                                        j * gridBlockHeight + gridBlockHeight,
+                                        gridBlockWidth / 2,
+                                        0, 2 * Math.PI, false
+                                    );
+                                    ctx.fill();
+
+                                    ctx.fillStyle = `black`;
+
+                                    if (r === 0, g === 0, b === 0) {
+                                        ctx.fillStyle = 'white';
+                                    }
+
+                                    ctx.fontWeight = 'bold';
+                                    ctx.font = '10px Arial';
+
+                                    const index = colorKeys.indexOf(colorGrid[i][j].toString())
+
+                                    ctx.fillText(
+                                        index + 1, 
+                                        i * gridBlockWidth + gridBlockWidth - 2, 
+                                        j * gridBlockHeight + gridBlockHeight + 5
+                                        )
+
+
+                                }
+                            }
+
+
+
                             button = createButton('ESPORTA STA ROBA E DIVENTA IMPROVVISAMENTE RICCO!');
                             button.mouseReleased(function () {
                                 const csvContent = Object.keys(colors).reduce((finalString, c) => {
@@ -197,11 +292,13 @@
 
                                 link.click(); // This will download the data file named "my_data.csv".
 
-                                
-
 
                                 
                             })
+
+
+                            
+                            
                             
                             
 
@@ -214,12 +311,11 @@
 
 
             }
+
+
+            
             
 
         </script>
-    </head>
-    <body>
-        <h1 style="font-family: 'Comic Neue', cursive;">Cercavo il comic sans ma non è aggratis</h1>
-        
     </body>
 </html>
