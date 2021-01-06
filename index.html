@@ -358,9 +358,9 @@
                   }
                 }
 
-                generateInstructionCanvas(`instructions-big`, 0, this.cols -1, 0, this.rows -1, 1000, 1000)
+                generateInstructionCanvas(`instructions-big`, 0, this.cols -1, 0, this.rows -1, 1000, 1000, 12)
 
-                function generateInstructionCanvas(elId, xStart, xEnd, yStart, yEnd, height = 800, width = 800) {
+                function generateInstructionCanvas(elId, xStart, xEnd, yStart, yEnd, height = 800, width = 800, fontSize = 24) {
 
                   const instructions = document.getElementById(elId);
                   const instructionCanvas = document.createElement("canvas");
@@ -407,8 +407,8 @@
 
                       ctx.fillText(
                         index + 1,
-                        (xi * gridBlockWidth) + (gridBlockWidth / 2) - 3,
-                        (yj * gridBlockHeight) + (gridBlockHeight / 2) + 5
+                        (xi * gridBlockWidth) + (gridBlockWidth / 2) - 7,
+                        (yj * gridBlockHeight) + (gridBlockHeight / 2) + 8
                       );
                     }
                   }
