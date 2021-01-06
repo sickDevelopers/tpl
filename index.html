@@ -370,7 +370,7 @@
                   instructions.appendChild(instructionCanvas);
                   const ctx = instructionCanvas.getContext("2d");
 
-                  ctx.fillStyle = "black";
+                  ctx.fillStyle = "rgb(20, 20, 20)";
                   ctx.fillRect(0, 0, instructionCanvas.width, instructionCanvas.height);
 
                   const gridBlockWidth = Math.round(instructionCanvas.width / (xEnd - xStart + 1));
@@ -400,7 +400,7 @@
                       }
 
                       ctx.fontWeight = "bold";
-                      ctx.font = "14px Arial";
+                      ctx.font = "20px Arial";
 
                       
                       const index = colorKeys.indexOf(colorGrid[i][j].toString());
