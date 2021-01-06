@@ -400,14 +400,14 @@
                       }
 
                       ctx.fontWeight = "bold";
-                      ctx.font = "20px Arial";
+                      ctx.font = `${fontSize}px Arial`;
 
                       
                       const index = colorKeys.indexOf(colorGrid[i][j].toString());
 
                       ctx.fillText(
                         index + 1,
-                        (xi * gridBlockWidth) + (gridBlockWidth / 2) - 7,
+                        (xi * gridBlockWidth) + (gridBlockWidth / 2) - 6,
                         (yj * gridBlockHeight) + (gridBlockHeight / 2) + 8
                       );
                     }
