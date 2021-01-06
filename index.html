@@ -334,7 +334,7 @@
                   this.totalPrice += (catalogObj[hx] ? catalogObj[hx].price * colors[c] : 0);
 
                   return {
-                    index,
+                    index: index + 1,
                     rgb: c.toString(),
                     hex: hx,
                     number: colors[c],
