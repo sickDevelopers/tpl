@@ -1,321 +1,487 @@
 <html>
-    <head>
-        <script src="./lib/p5.min.js"></script>
-        <script src="./catalog.js"></script>
 
-        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<head>
+  <script src="./lib/p5.min.js"></script>
+  <script src="./catalog.js"></script>
 
-<script src="https://unpkg.com/giphy-random/dist/giphy-random.umd.min.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
-        <!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
-<link rel="preconnect" href="https://fonts.gstatic.com">
-<link href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@1,700&display=swap" rel="stylesheet">
-        <style>
-            .color {
-                float: left;
-                width: 30px;
-                height: 30px;
-            }
+  <script src="https://unpkg.com/giphy-random/dist/giphy-random.umd.min.js"></script>
 
-            tfoot {
-                background-color: #35c0bb
-            }
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
 
-            #img-container {
-                float: left;
-                background-color: gray;
-            }
+  <!-- Latest compiled and minified CSS -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@1,700&display=swap" rel="stylesheet" />
+  <!-- CSS only -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous" />
+  <style>
+    .color {
+        float: left;
+        width: 30px;
+        height: 30px;
+      }
+/* 
+      tfoot {
+        background-color: #35c0bb;
+      }
 
-            #instructions {
-                float: right;
-                background-color: #000;
-                width: 1000px;
-                height: 1000px;
-            }
+      #img-container {
+        float: left;
+        background-color: gray;
+      }
 
-        </style>
+      #instructions {
+        float: right;
+        background-color: #000;
+        width: 1000px;
+        height: 1000px;
+      } */
 
-        
-    </head>
-    <body>
-        <h1 style="font-family: 'Comic Neue', cursive;">Cercavo il comic sans ma non è aggratis</h1>
-        <div id="img-container"></div>
-        <div class="" id="instructions"></div>
+      .main-canvas {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 200px;
+        height : 200px;
+        background-color: black;
+      }
 
-        <script>
+      .main-nav a {
+       margin:30 20px;
+       color:#fff;
+       text-transform: uppercase;
+       text-decoration:none
+      }
 
-            // CODICE IMPORTANTISSIMO LUCAAAAAAAAAAAA
-            (async () => {
-                const API_KEY = "H1FB5bcRZ0jP91bF8GpYvFXLNjJ3R3Ez";
+      .main-nav a.active {
+        color:aqua;
+      }
 
-                const { data } = await giphyRandom(API_KEY, {
-                    tag: 'fail'
-                });
+      .grid-block {
+        width: 500px;
+        height: 500px;
+        margin: 20px;
+      }
 
-                console.log(data);
+  </style>
+</head>
 
-                const embed = createElement('embed');
-                embed.attribute('src', data.embed_url)
-            })();
-            // FINE CODICE IMPORTATISSIMO
+<body class="text-white bg-dark">
+  <header class="mb-auto">
+    <div>
+      <h2>
+        Luchino's Super Business PRO v0.2 Deluxe
+      <small style="font-size: 50%; color: rgba(255,255,255,0.5)">Get Panto or die trying</small>
+      </h2>
+    </div>
+  </header>
+  <main class="px-3" id="app">
 
-            let gridX = 48;
-            let gridY = 48;
+    <nav class="main-nav row md-3 mt-3">
+      <p>
+        <a href="#" v-on:click="showLanding" v-bind:class="{ active: section === 'landing'}">carica immagine</a>
+        <a href="#" v-on:click="showTable" v-bind:class="{ active: section === 'table'}">tabella colori</a>
+        <a href="#" v-on:click="showImages" v-bind:class="{ active: section === 'images'}">immagini per istruzioni</a>
+      </p>
+    </nav>
 
-            const catalogRows = catalog.split('\n');
-            // console.log(catalogRows)
 
-            const catalogObj = catalogRows.reduce((final, row) => {
-                const cols = row.split(',');
-                final[cols[0].toUpperCase()] = {
-                    price: parseFloat(cols[6].replace('"', '').replace('€', '').trim()),
-                    element: cols[4],
-                    series: cols[5]
+    <div v-if="section === 'landing'" id="landing">
+      <div class="row g-3 mb-3">
+        <div class="col-auto">
+          <label for="cols" class="form-label">Colonne</label>
+          <input type="number" class="form-control" id="cols" v-model="cols" />
+        </div>
+        <div class="col-auto">
+          <label for="rows" class="form-label">Righe</label>
+          <input type="number" class="form-control" id="rows" v-model="rows" />
+        </div>
+        <div class="col-auto">
+          <label for="theFile" class="form-label">
+            Immagine da trasformare in bling bling
+          </label>
+          <input class="form-control" type="file" ref="theFile" id="theFile" @change="loadImage" />
+        </div>
+      </div>
+
+
+      <div style="height: 50px" v-if="loadingGif">
+
+        <h3>Aspetta Luca!</h3>
+        <p>Grazie ad un magnifico algoritmo di Intelligenza Artificiale brevettato, l'internet sta caricando l'immagine della tua vita...</p>
+        <p>Comunque la tua roba è pronta, basta che clicchi sui link di sopra</p>
+      </div>
+
+      <embed v-if="gifSrc !== ''" v-bind:src="gifSrc" width="400"  height="400"/>
+
+
+    </div>
+
+    <div v-if="section === 'table'" id="table">
+
+      <button class="btn btn-lg btn-success" v-on:click="exportCsv">COPRIMI DI SOLDI! (cit) ovvero esporta tipo CSV ma più meglio</button>
+
+      <table class="table table-striped table-dark mt-5">
+        <thead>
+          <tr>
+            <th></th>
+            <th>indice</th>
+            <th>RGBa</th>
+            <th>HEX</th>
+            <th>numero</th>
+            <th>prezzo</th>
+            <th>elemento</th>
+            <th>num. serie</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in tableRows" :key="item.color">
+            <td>
+              <div class="color" 
+                  v-bind:style="{ backgroundColor: `rgba(${item.rgb})` }"></div>
+            </td>
+            <td>{{item.index}}</td>
+            <td>{{item.rgb}}</td>
+            <td>{{item.hex}}</td>
+            <td>{{item.number}}</td>
+            <td>{{item.price}}</td>
+            <td>{{item.element}}</td>
+            <td>{{item.series}}</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>{{totalPoints}}</td>
+            <td>{{totalPrice}}</td>
+            <td></td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+
+
+    </div>
+
+    <div v-show="section === 'images'" id="images">
+      <div class="row">
+        <div class="grid-block" id="instructions-0-0"></div>
+        <div class="grid-block" id="instructions-1-0"></div>
+        <div class="grid-block" id="instructions-2-0"></div>
+      </div>
+      <div class="row">
+        <div class="grid-block" id="instructions-0-1"></div>
+        <div class="grid-block" id="instructions-1-1"></div>
+        <div class="grid-block" id="instructions-2-1"></div>
+      </div>
+      <div class="row">
+        <div class="grid-block" id="instructions-0-2"></div>
+        <div class="grid-block" id="instructions-1-2"></div>
+        <div class="grid-block" id="instructions-2-2"></div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <h3>Full size</h3>
+          <div id="instructions-big"></div>
+        </div>
+      </div>
+    </div>
+    
+
+  </main>
+
+  <!-- <h1 style="font-family: 'Comic Neue', cursive">
+      Cercavo il comic sans ma non è aggratis
+    </h1>
+    <div id="img-container"></div>
+    <div class="" id="instructions"></div> -->
+
+  <script>
+
+    
+
+
+    function parseCatalog() {
+      const catalogRows = catalog.split("\n");
+      const catalogObj = catalogRows.reduce((final, row) => {
+        const cols = row.split(",");
+        final[cols[0].toUpperCase()] = {
+          price: parseFloat(cols[6].replace('"', "").replace("€", "").trim()),
+          element: cols[4],
+          series: cols[5],
+        };
+        return final;
+      }, {});
+      return catalogObj;
+    }
+
+    const catalogObj = parseCatalog();
+
+    let p5LoadImage;
+
+    function setup() {
+      const mainCanvas = createCanvas(200, 200);
+      mainCanvas.class('main-canvas');
+      p5LoadImage = loadImage;
+    }
+
+    const app = new Vue({
+      el: "#app",
+      data: {
+          files: null,
+          rows: 48,
+          cols: 48,
+          section: 'landing',
+          tableRows: [],
+          totalPoints: 0,
+          totalPrice: 0,
+          gifSrc: '',
+          loadingGif: false
+      },
+      methods: {
+        showLanding: function() { this.section = 'landing'},
+        showTable: function() { this.section = 'table'},
+        showImages: function() { this.section = 'images'},
+        exportCsv: function() {
+
+          const csvContent = this.tableRows.map(row => {
+            return `${row.element}\t${row.number}`
+          })
+          
+          var encodedUri = encodeURI(
+            "data:text/plain;charset=utf-8," + csvContent.join('\n')
+          );
+          console.log(encodedUri)
+          var link = document.createElement("a");
+          link.setAttribute("href", encodedUri);
+          link.setAttribute("download", "lego_order.txt");
+          document.body.appendChild(link); 
+
+          link.click(); 
+          
+        },
+
+        loadImage: function () {
+
+          this.files = this.$refs.theFile.files;
+          const uploadedImage = this.files[0];
+
+          if (uploadedImage.type !== "image/png") {
+            alert("Goldon, solo PNG");
+            return;
+          }
+
+          const reader = new FileReader();
+
+          reader.addEventListener("load", ()  => {
+              // convert image file to base64 string
+              const imageData = reader.result;
+
+              const imageLoaded = (img) => {
+
+                this.loadingGif = true;
+                // CODICE IMPORTANTISSIMO LUCAAAAAAAAAAAA
+                (async () => {
+                  const API_KEY = "H1FB5bcRZ0jP91bF8GpYvFXLNjJ3R3Ez";
+
+                  const { data } = await giphyRandom(API_KEY, {
+                    tag: "fail",
+                  });
+
+                  this.gifSrc = data.embed_url;
+                  
+                })();
+                // FINE CODICE IMPORTATISSIMO
+
+
+                // COLOR PICKING
+                const blockSizeWidth = Math.round(img.width / this.cols);
+                const blockSizeHeight = Math.round(img.height / this.rows);
+
+                image(img, 0, 0, 200, 200);
+
+                const colors = {};
+
+                const colorGrid = Array(this.cols).fill().map(() => Array(this.rows).fill());
+
+                let x = 0, y = 0;
+
+                for (let i = Math.round(blockSizeWidth / 2); i < img.width; i = i + blockSizeWidth) {
+                  y = 0;
+                  for (let j = Math.round(blockSizeHeight / 2); j < img.height; j = j + blockSizeHeight) {
+                    let c = img.get(i, j);
+                    colors[c] = colors[c] === undefined ? 1 : colors[c] + 1;
+                    colorGrid[x][y] = c;
+                    y++;
+                  }
+                  x++;
                 }
-                return final;
-            }, {})
-
-            function setup() {
-
-                const canvas = createCanvas(200, 200);
-                canvas.parent('img-container');
 
 
-                createElement('label', 'colonne')
-                const gridXInput = createInput('48');
-                gridXInput.input(function() {gridX = parseInt(this.value())});
-                createElement('label', 'righe')
-                const gridYInput = createInput('48');
-                gridYInput.input(function() {gridY = parseInt(this.value())});
-                const imageFile = createFileInput(file => {
+                // BUILD TABLE
 
-                    if (file.type === 'image') {
-                        loadImage(file.data, (img) => {
-                            const blockSizeWidth = img.width / gridX;
-                            const blockSizeHeight = img.height / gridY;
+                this.tableRows = Object.keys(colors).map((c, index) => {
 
-                            image(img,0,0, 200, 200)
+                  const comp = c.split(",").map((num) => parseInt(num));
+                  const hx = "#" + hex(comp[0], 2) + hex(comp[1], 2) + hex(comp[2], 2);
 
-                            const colors = {}
+                  this.totalPoints += colors[c];
+                  this.totalPrice += (catalogObj[hx] ? catalogObj[hx].price * colors[c] : 0);
 
-                            const colorGrid = Array(gridX).fill().map(() => Array(gridY).fill());
+                  return {
+                    index,
+                    rgb: c.toString(),
+                    hex: hx,
+                    number: colors[c],
+                    price: catalogObj[hx] ? catalogObj[hx].price * colors[c] : 0,
+                    element: catalogObj[hx] ? catalogObj[hx].element : '',
+                    series: catalogObj[hx] ? catalogObj[hx].series : ''
+                  }
+                })
 
-                            let x = 0, y = 0;
+                // BUILD INTRUCTIONS IMAGES
+                
+                for(let i = 0; i < 3; i++) {
+                  for(let j = 0; j < 3; j++) {
+                    generateInstructionCanvas(
+                      `instructions-${i}-${j}`,
+                      i * Math.round(this.cols / 3),
+                      (i + 1) * Math.round(this.cols / 3) - 1,
+                      j * Math.round(this.rows / 3),
+                      (j + 1) * Math.round(this.rows / 3) - 1 ,
+                    )
+                  }
+                }
 
-                            for ( let i = Math.round(blockSizeWidth / 2); i < img.width; i = i + blockSizeWidth ) {
-                                y = 0;
-                                for ( let j = Math.round(blockSizeHeight / 2); j < img.height; j = j + blockSizeHeight) {
-                                    
-                                    
-                                    let c = img.get(i, j);
-                                    colors[c] = colors[c] === undefined ? 1 : colors[c] + 1
-                                    colorGrid[x][y] = c;
-                                    y++;
-                                }
-                                x++;
-                            }
+                generateInstructionCanvas(`instructions-big`, 0, this.cols -1, 0, this.rows -1, 1000, 1000)
 
-                            console.log(colors);  
+                function generateInstructionCanvas(elId, xStart, xEnd, yStart, yEnd, height = 500, width = 500) {
 
-                            console.log('colorGrid', colorGrid)
+                  const instructions = document.getElementById(elId);
+                  const instructionCanvas = document.createElement("canvas");
+                  instructionCanvas.height = height;
+                  instructionCanvas.width = width;
 
-                            let totalPoints = 0;
-                            let totalPrice = 0;
+                  instructions.appendChild(instructionCanvas);
+                  const ctx = instructionCanvas.getContext("2d");
 
-                            createDiv()
-                            const table = createElement('table');
-                            table.class('table table-striped');
+                  ctx.fillStyle = "black";
+                  ctx.fillRect(0, 0, instructionCanvas.width, instructionCanvas.height);
 
-                            const thead = createElement('thead',
-                                `
-                                    <tr>
-                                        <th></th>
-                                        <th>indice</th>  
-                                        <th>RGB</th>
-                                        <th>HEX</th>
-                                        <th>numero</th>
-                                        <th>prezzo</th>
-                                        <th>elemento</th>
-                                        <th>num. serie</th>    
-                                    </tr>
-                                `
-                            );
-                            thead.parent(table);
+                  const gridBlockWidth = Math.round(instructionCanvas.width / (xEnd - xStart + 1));
+                  const gridBlockHeight = Math.round(instructionCanvas.height / (yEnd - yStart + 1));
+                  const colorKeys = Object.keys(colors);
 
-                            const colorKeys = Object.keys(colors);
+                  for (let i = xStart, xi = 0; i <= xEnd; i++, xi++) {
+                    for (let j = yStart, yj = 0; j <= yEnd; j++, yj++) {
+                      const [r, g, b, a] = colorGrid[i][j];
+                      ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+                      ctx.beginPath();
+                      ctx.arc(
+                        xi * gridBlockWidth + (gridBlockWidth / 2),
+                        yj * gridBlockHeight + (gridBlockHeight / 2),
+                        gridBlockWidth / 2,
+                        0,
+                        2 * Math.PI,
+                        false
+                      );
+                      ctx.fill();
 
+                      ctx.strokeStyle = "black";
+                      ctx.fillStyle = "black";
 
-                            tbody = createElement('tbody');
-                            tbody.parent(table);
+                      if ((r === 0, g === 0, b === 0)) {
+                        ctx.fillStyle = "white";
+                      }
 
-                            Object.keys(colors).forEach((c, index) => {
+                      ctx.fontWeight = "bold";
+                      ctx.font = "10px Arial";
 
-                                const tr = createElement('tr');
-                                tr.parent(tbody)
+                      
+                      const index = colorKeys.indexOf(colorGrid[i][j].toString());
 
-                                const colorTd = createElement('td');
-                                colorTd.parent(tr);
-                                const colorBlock = createDiv();
-                                colorBlock.parent(colorTd);
-                                colorBlock.class('color');
-                                colorBlock.style('background-color', `rgba(${c})`);
-
-                                const indexBlock = createElement('td', index +1 );
-                                indexBlock.parent(tr);
-
-                                const rgbBlock = createElement('td');
-                                rgbBlock.parent(tr);
-                                rgbBlock.html(c)
-
-                               
-                                
-                                const comp = c.split(',').map(num => parseInt(num));
-                                var hx = "#" + hex(comp[0], 2) + hex(comp[1], 2) + hex(comp[2], 2);
-                                const hexTd = createElement('td', hx);
-                                hexTd.parent(tr);
-                                
-                                const countTd = createElement('td');
-                                countTd.parent(tr)
-                                countTd.html(colors[c])
-                                
-                                let price = 0;
-                                const priceTd = createElement('td');
-                                if (catalogObj[hx]) {
-                                    price = catalogObj[hx].price * colors[c];
-                                    priceTd.html(`${price} €`)
-                                }
-                                priceTd.parent(tr);
-
-                                const elementTd = createElement('td');
-                                if (catalogObj[hx]) {
-                                    elementTd.html(catalogObj[hx].element);
-                                }
-                                elementTd.parent(tr);
-
-                                const seriesTd = createElement('td');
-                                if (catalogObj[hx]) {
-                                    seriesTd.html(catalogObj[hx].series);
-                                }
-                                seriesTd.parent(tr);
-                                
-                                totalPoints += colors[c];
-                                totalPrice += price;
-                            })
-
-                            tfooter = createElement('tfoot', `
-                                <tr>
-                                    <td>TOTALI</td>
-                                    <td></td>
-                                    <td></td>
-                                    <td>${totalPoints}</td>
-                                    <td>${totalPrice} €</td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
-                            `);
-                            tfooter.parent(table);
-
-
-
-                            const instructions = document.getElementById('instructions');
-                            const instructionCanvas = document.createElement('canvas');
-                            instructionCanvas.height = 1000;
-                            instructionCanvas.width = 1000;
-
-                            instructions.appendChild(instructionCanvas);
-                            const ctx = instructionCanvas.getContext('2d');
-
-                            const gridBlockWidth = 20;
-                            const gridBlockHeight = 20;
-
-                            
-
-
-                            for (let i = 0; i < colorGrid.length; i++) {
-                                for (let j = 0; j < colorGrid[0].length; j++) {
-                                    const [r, g, b, a] = colorGrid[i][j];
-                                    ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-                                    ctx.beginPath();
-                                    ctx.arc(
-                                        i * gridBlockWidth + gridBlockWidth, 
-                                        j * gridBlockHeight + gridBlockHeight,
-                                        gridBlockWidth / 2,
-                                        0, 2 * Math.PI, false
-                                    );
-                                    ctx.fill();
-
-                                    ctx.fillStyle = `black`;
-
-                                    if (r === 0, g === 0, b === 0) {
-                                        ctx.fillStyle = 'white';
-                                    }
-
-                                    ctx.fontWeight = 'bold';
-                                    ctx.font = '10px Arial';
-
-                                    const index = colorKeys.indexOf(colorGrid[i][j].toString())
-
-                                    ctx.fillText(
-                                        index + 1, 
-                                        i * gridBlockWidth + gridBlockWidth - 2, 
-                                        j * gridBlockHeight + gridBlockHeight + 5
-                                        )
-
-
-                                }
-                            }
-
-
-
-                            button = createButton('ESPORTA STA ROBA E DIVENTA IMPROVVISAMENTE RICCO!');
-                            button.mouseReleased(function () {
-                                const csvContent = Object.keys(colors).reduce((finalString, c) => {
-                                    const comp = c.split(',').map(num => parseInt(num));
-                                    var hx = "#" + hex(comp[0], 2) + hex(comp[1], 2) + hex(comp[2], 2);
-                                    
-                                    if (catalogObj[hx]) {
-                                        finalString += `${catalogObj[hx].element}\t${colors[c]}`;
-                                    }
-                                    finalString += '\n';
-                                    return finalString
-
-                                }, '')
-
-                                console.log(csvContent)
-
-                                var encodedUri = encodeURI("data:text/csv;charset=utf-8," + csvContent);
-                                var link = document.createElement("a");
-                                link.setAttribute("href", encodedUri);
-                                link.setAttribute("download", "lego_order.txt");
-                                document.body.appendChild(link); // Required for FF
-
-                                link.click(); // This will download the data file named "my_data.csv".
-
-
-                                
-                            })
-
-
-                            
-                            
-                            
-                            
-
-                        });
-
-                        
+                      ctx.fillText(
+                        index + 1,
+                        (xi * gridBlockWidth) + (gridBlockWidth / 2) - 3,
+                        (yj * gridBlockHeight) + (gridBlockHeight / 2) + 5
+                      );
                     }
+                  }
 
-                });
+                }
+
+                // // FULL IMAGE
+                // const instructions = document.getElementById("instructions-big");
+                // const instructionCanvas = document.createElement("canvas");
+                // instructionCanvas.height = 1000;
+                // instructionCanvas.width = 1000;
+
+                // instructions.appendChild(instructionCanvas);
+                // const ctx = instructionCanvas.getContext("2d");
+
+                // ctx.fillStyle = "black";
+                // ctx.fillRect(0, 0, instructionCanvas.width, instructionCanvas.height);
+
+                // const gridBlockWidth = 20;
+                // const gridBlockHeight = 20;
+                // const colorKeys = Object.keys(colors);
+
+                // for (let i = 0; i < colorGrid.length; i++) {
+                //   for (let j = 0; j < colorGrid[0].length; j++) {
+                //     const [r, g, b, a] = colorGrid[i][j];
+                //     ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+                //     ctx.beginPath();
+                //     ctx.arc(
+                //       i * gridBlockWidth + gridBlockWidth,
+                //       j * gridBlockHeight + gridBlockHeight,
+                //       gridBlockWidth / 2,
+                //       0,
+                //       2 * Math.PI,
+                //       false
+                //     );
+                //     ctx.fill();
+
+                //     ctx.strokeStyle = "black";
+                //     ctx.fillStyle = `black`;
+
+                //     if ((r === 0, g === 0, b === 0)) {
+                //       ctx.fillStyle = "white";
+                //     }
+
+                //     ctx.fontWeight = "bold";
+                //     ctx.font = "10px Arial";
+
+                    
+                //     const index = colorKeys.indexOf(colorGrid[i][j].toString());
+
+                //     ctx.fillText(
+                //       index + 1,
+                //       i * gridBlockWidth + gridBlockWidth - 3,
+                //       j * gridBlockHeight + gridBlockHeight + 5
+                //     );
+                //   }
+                // }
 
 
-            }
+              }
 
+              p5LoadImage(imageData, imageLoaded.bind(this));
+            },
+            false
+          );
 
-            
-            
+          reader.readAsDataURL(uploadedImage);
+        },
+      },
+    });
 
-        </script>
-    </body>
+    
+  </script>
+</body>
+
 </html>
